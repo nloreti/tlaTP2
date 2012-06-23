@@ -114,14 +114,21 @@ void generateASDR() {
 	char * name = "ASDR.c";
 	file = fopen(name, "w+");
 	char * nonTerminals = gramatica->nonterminals->nonterminals;
-	printf("NO TERMINAL %c",nonTerminals[0]);
+	printf("NO TERMINAL %c\n",nonTerminals[0]);
 	int i;
+	printf("TAMANIO : %d\n",  gramatica->nonterminals->size);
 	production_struct ** productionsNT = malloc(sizeof(production_struct*) * gramatica->nonterminals->size);
 	int * prodSize = malloc(sizeof(int) * gramatica->nonterminals->size);
 //	int * nonTerminals = malloc(sizeof(int) * gramatica->nonterminals->size));
 	
 	for ( i = 0; i < gramatica->nonterminals->size; i++) {
 		productionsNT[i] = getProductionsByTerminal(nonTerminals[i], &(prodSize[i]));
+	//	printf("%c -> --- %d\n", productionsNT[i]->leftsimbol,prodSize[i]);
+	//	printf("Afuera CANTIDAD %c: %d\n",nonTerminals[i],prodSize[i]);
+	}
+	
+	for ( i = 0 ; i < prodSize[i]; i++){
+		printf("Terminal %c -- Produccion %c -> %c --- %d\n",nonTerminals[0],productionsNT[0][i].leftsimbol,productionsNT[0][i].rightsimbols[0],i);
 	}
 
 	//Empieza la creeacion del archivo
@@ -185,8 +192,11 @@ void generateASDR() {
 			int h;
 			
 			for (h = 0; h < prodSize[k]; h++) {
+				printf("CANTIDAD EN PROD: %d\n",prodSize[k]);
 				printf("PASO1\n");
+			
 				production_struct p = ps[h];
+				printf("LEFT: %c\n",p.leftsimbol);
 				printf("PASO2\n");
 				fprintf(file, "\tprods%d[%d] = newProduction(\'%c\', \"%s\");\n", k, h, p.leftsimbol, p.rightsimbols);
 				printf("PASO3\n");
