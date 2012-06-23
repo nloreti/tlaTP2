@@ -247,8 +247,10 @@ void generateASDR() {
 			fprintf(file, "\tint n = prods%dquant; /*quantity of productions with this termina */\n", j);
 			fprintf(file, "\tint error = TRUE;\n");
 			fprintf(file, "\tfor(j = 0; j < n && error; j++) {\n");
-			fprintf(file, "\t\terror = procesar(prods%d[j], w, t);\n", j);
+			fprintf(file, "\tint t2 = *t;\n");
+			fprintf(file, "\t\terror = procesar(prods%d[j], w, &t2);\n", j);
 			fprintf(file, "\t\tif(!error){\n");
+			fprintf(file, "\t\t\t*t = t2;\n");
 			fprintf(file, "\t\t\tprintProduction(prods%d[j]);\n", j);
 			fprintf(file, "\t\t}\n\t}\n");
 			fprintf(file, "\treturn error;\n}\n");
