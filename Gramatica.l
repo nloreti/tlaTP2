@@ -266,7 +266,7 @@ void generateASDR() {
 
 
 production_struct * getProductionsByTerminal( char nonTerminal , int * quant){
-	production_struct * ans = malloc(sizeof(production_struct *));
+	production_struct * ans = malloc(sizeof(production_struct*) * sizeof(production_struct));
 	int i,k=0;
 	for(i=0; i<gramatica->production_function->size;i++){
 		production_struct p = gramatica->production_function->productions[i];
