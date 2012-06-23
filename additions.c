@@ -28,3 +28,6 @@ char getProductionComponent(production_struct production, int i){
 	return (i == 0)? production.leftsimbol : production.rightsimbols[i-1];
 }
 
+void printProduction(production_struct production){
+	printf("%c->%s\n",production.leftsimbol, production.rightsimbols);
+}
