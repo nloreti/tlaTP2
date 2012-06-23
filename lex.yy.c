@@ -2100,7 +2100,7 @@ void generateASDR() {
 		fprintf(file, "int procesar(production_struct p, char * w, int * t) {\n");
 		fprintf(file, "\tint i;\n");
 		fprintf(file, "\tint n = p.rightsimbolslenght; /*number of symbols in the right side of the production*/\n");
-		fprintf(file, "\tfor (i = 1; i < n; i++) {\n");
+		fprintf(file, "\tfor (i = 1; i <= n; i++) {\n");
 		fprintf(file, "\t\tchar comp = getProductionComponent(p, i);\n");
 		fprintf(file, "\t\tif (isTerminal(comp)) {\n");
 		fprintf(file, "\t\t\tif (w[*t] == comp) {\n");

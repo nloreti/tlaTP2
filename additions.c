@@ -22,7 +22,7 @@ int isNonTerminal(char c){
 }
 
 char getProductionComponent(production_struct production, int i){
-	if(i < 0 ||i >= production.rightsimbolslenght){
+	if(i < 0 ||i > production.rightsimbolslenght){
 		return -1;
 	}
 	return (i == 0)? production.leftsimbol : production.rightsimbols[i-1];
