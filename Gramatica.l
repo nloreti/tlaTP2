@@ -198,7 +198,12 @@ void generateASDR() {
 				production_struct p = ps[h];
 				printf("LEFT: %c\n",p.leftsimbol);
 				printf("PASO2\n");
+				char * right = p.rightsimbols;
+				if( right[0] == '\\'){
+					fprintf(file, "\tprods%d[%d] = newProduction(\'%c\', \"\\\\\");\n", k, h, p.leftsimbol);
+				}else{
 				fprintf(file, "\tprods%d[%d] = newProduction(\'%c\', \"%s\");\n", k, h, p.leftsimbol, p.rightsimbols);
+				}
 				printf("PASO3\n");
 			}
 		}
