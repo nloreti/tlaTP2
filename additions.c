@@ -31,3 +31,15 @@ char getProductionComponent(production_struct production, int i){
 void printProduction(production_struct production){
 	printf("%c->%s\n",production.leftsimbol, production.rightsimbols);
 }
+
+int nonTerminalsinProd(production_struct p){
+	int i,resp;
+	resp = 0;
+	for(i = 1; i <= p.rightsimbolslenght; i++){
+		char comp = getProductionComponent(p, i);
+		if (isTerminal(comp)){
+			resp++;
+		}
+	}
+	return resp;
+}

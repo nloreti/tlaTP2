@@ -142,7 +142,7 @@ void generateASDR() {
 		fprintf(file, "#include \"./additions.h\"\n");
 		fprintf(file, "#define TRUE 1\n");
 		fprintf(file, "#define FALSE 0\n");
-
+		fprintf(file, "int amountNT = 0;\n");
 		int k,j;
 		for (k = 0; k < gramatica->nonterminals->size; k++) {
 			fprintf(file, "production_struct * prods%d;\n", k);
@@ -218,7 +218,7 @@ void generateASDR() {
 		fprintf(file, "int procesar(production_struct p, char * w, int * t) {\n");
 		fprintf(file, "\tint i;\n");
 		fprintf(file, "\tint n = p.rightsimbolslenght; /*number of symbols in the right side of the production*/\n");
-		fprintf(file, "\tfor (i = 1; i <= n; i++) {\n");
+		fprintf(file, "\tfor (i = 1; i <= n && *t < strlen(w); i++) {\n");
 		fprintf(file, "\t\tchar comp = getProductionComponent(p, i);\n");
 		fprintf(file, "\t\tif (isTerminal(comp)) {\n");
 		fprintf(file, "\t\t\tif (w[*t] == comp) {\n");
@@ -253,11 +253,14 @@ void generateASDR() {
 			fprintf(file, "\tint error = TRUE;\n");
 			fprintf(file, "\tfor(j = 0; j < n && error; j++) {\n");
 			fprintf(file, "\tint t2 = *t;\n");
-			fprintf(file, "\t\terror = procesar(prods%d[j], w, &t2);\n", j);
+			fprintf(file, "\tif(!((amountNT + nonTerminalsinProd(prods%d[j])) > strlen(w))){\n",j);
+			fprintf(file, "\t\tamountNT += nonTerminalsinProd(prods%d[j]);\n", j);	
+			fprintf(file, "\t\t\terror = procesar(prods%d[j], w, &t2);\n", j);
+			fprintf(file, "\t\t\n\t}\n");
 			fprintf(file, "\t\tif(!error){\n");
 			fprintf(file, "\t\t\t*t = t2;\n");
 			fprintf(file, "\t\t\tprintProduction(prods%d[j]);\n", j);
-			fprintf(file, "\t\t}\n\t}\n");
+			fprintf(file, "\t\t}else{amountNT -= nonTerminalsinProd(prods%d[j]);}\n\t}\n",j);
 			fprintf(file, "\treturn error;\n}\n");
 		}
 
