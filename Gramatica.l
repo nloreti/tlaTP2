@@ -70,21 +70,21 @@ FILE * file;
 	createGramatica();	
 	yylex();
 	/*
-	eliminateInproductive();
-	eliminateUnreach();
-	left_eliminateUnitaries();
-	eliminateUnreach();
+//	eliminateInproductive();
+//	eliminateUnreach();
+//	left_eliminateUnitaries();
+//	eliminateUnreach();
 	
-	if ( isLeft() == 1 ){
-		left_normalize();
-	}else if ( isLeft() == 0){
-		right_normalize();
-	}else{
-		printf("Error en la gramatica, no corresponde a ningún tipo conocido\n");
-		return 0;
-	}
+//	if ( isLeft() == 1 ){
+//		left_normalize();
+//	}else if ( isLeft() == 0){
+//		right_normalize();
+//	}else{
+//		printf("Error en la gramatica, no corresponde a ningún tipo conocido\n");
+//		return 0;
+//	}
 	*/
-	printf("La gramatica es Correcta\n\n");		
+//	printf("La gramatica es Correcta\n\n");		
 	showTerminalSymbols();
 	showNonTerminalSymbols();
 	showInitialSymbol();
@@ -93,7 +93,7 @@ FILE * file;
 	generateASDR();
 	/*
 	//Armo el Archivo;
-	makeDotFile(file);
+//	makeDotFile(file);
 	
 	//Grafico
 //	if ( (pid = fork()) < 0 ){
@@ -126,10 +126,10 @@ void generateASDR() {
 	//	printf("%c -> --- %d\n", productionsNT[i]->leftsimbol,prodSize[i]);
 	//	printf("Afuera CANTIDAD %c: %d\n",nonTerminals[i],prodSize[i]);
 	}
-	
-	for ( i = 0 ; i < prodSize[i]; i++){
-		printf("Terminal %c -- Produccion %c -> %c --- %d\n",nonTerminals[0],productionsNT[0][i].leftsimbol,productionsNT[0][i].rightsimbols[0],i);
-	}
+	printf("PROD SIZE: %d\n",prodSize[0]);
+	for ( i = 0 ; i < prodSize[0]; i++){
+	               printf("Terminal %c -- Produccion %c -> %s --- %d\n",nonTerminals[0],productionsNT[0][i].leftsimbol,productionsNT[0][i].rightsimbols,i);
+	 }
 
 	//Empieza la creeacion del archivo
 	if (file) {
