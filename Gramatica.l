@@ -251,16 +251,20 @@ void generateASDR() {
 			fprintf(file, "\tint j;\n");
 			fprintf(file, "\tint n = prods%dquant; /*quantity of productions with this termina */\n", j);
 			fprintf(file, "\tint error = TRUE;\n");
+			fprintf(file, "\tint resto = FALSE;\n");
 			fprintf(file, "\tfor(j = 0; j < n && error; j++) {\n");
 			fprintf(file, "\tint t2 = *t;\n");
 			fprintf(file, "\tif(!((amountNT + nonTerminalsinProd(prods%d[j])) > strlen(w))){\n",j);
 			fprintf(file, "\t\tamountNT += nonTerminalsinProd(prods%d[j]);\n", j);	
 			fprintf(file, "\t\t\terror = procesar(prods%d[j], w, &t2);\n", j);
+			fprintf(file, "\t\t\tif( error == TRUE ){\nresto = TRUE;\n}\n");
 			fprintf(file, "\t\t\n\t}\n");
 			fprintf(file, "\t\tif(!error){\n");
 			fprintf(file, "\t\t\t*t = t2;\n");
 			fprintf(file, "\t\t\tprintProduction(prods%d[j]);\n", j);
-			fprintf(file, "\t\t}else{amountNT -= nonTerminalsinProd(prods%d[j]);}\n\t}\n",j);
+			fprintf(file, "\t\t}\n",j);
+			fprintf(file, "\t\tif(resto == TRUE){\namountNT -= nonTerminalsinProd(prods%d[j]);\n}\n\t}\n",j);
+			
 			fprintf(file, "\treturn error;\n}\n");
 		}
 
