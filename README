@@ -1,0 +1,7 @@
+Modo de uso:
+	Compilar:
+		make compile FILE //En FILE se pone la gramática deseada
+	Limpiar:
+		make clean
+	Correr:
+		./TPTLA CADENA //CADENA es la cadena que se quiere probar
