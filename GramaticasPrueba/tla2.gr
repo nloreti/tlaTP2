@@ -2,4 +2,4 @@
 G3 = ({A,B,C,D},
 	{a, b, c},
 	A,
-	{A->ABCD | c, B->bBC | \, C ->DbD | \, D->aBDA | aaaaC})
+	{A->BCD | c, B->bBC | 	\, C ->DbD | \, D->aBDA | aaaaC})
