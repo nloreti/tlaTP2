@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "./TPE/structs.h"
+#include "./includes/structs.h"
 
 gramatica_struct * gramatica;
 char leftPart=0;
@@ -68,43 +68,14 @@ FILE * file;
 		yyin=fileToOpen;
 	
 	createGramatica();	
-	yylex();
-	/*
-//	eliminateInproductive();
-//	eliminateUnreach();
-//	left_eliminateUnitaries();
-//	eliminateUnreach();
-	
-//	if ( isLeft() == 1 ){
-//		left_normalize();
-//	}else if ( isLeft() == 0){
-//		right_normalize();
-//	}else{
-//		printf("Error en la gramatica, no corresponde a ningún tipo conocido\n");
-//		return 0;
-//	}
-	*/
-//	printf("La gramatica es Correcta\n\n");		
+	yylex();	
 	showTerminalSymbols();
 	showNonTerminalSymbols();
 	showInitialSymbol();
 	showProductionSymbols();
 
 	generateASDR();
-	/*
-	//Armo el Archivo;
-//	makeDotFile(file);
-	
-	//Grafico
-//	if ( (pid = fork()) < 0 ){
-//			perror("fork");
-//			exit(1);
-//	}
-//	if (pid == 0){
-//			system(strcat(argv[2]," -Tpng file.dot -o graph.png"));
-//			exit(1);
-//	}
-	*/
+
 }
 
 /*Conversion*/
@@ -114,27 +85,15 @@ void generateASDR() {
 	char * name = "ASDR.c";
 	file = fopen(name, "w+");
 	char * nonTerminals = gramatica->nonterminals->nonterminals;
-	printf("NO TERMINAL %c\n",nonTerminals[0]);
 	int i;
-	printf("TAMANIO : %d\n",  gramatica->nonterminals->size);
 	production_struct ** productionsNT = malloc(sizeof(production_struct*) * gramatica->nonterminals->size);
 	int * prodSize = malloc(sizeof(int) * gramatica->nonterminals->size);
-//	int * nonTerminals = malloc(sizeof(int) * gramatica->nonterminals->size));
-	
 	for ( i = 0; i < gramatica->nonterminals->size; i++) {
 		productionsNT[i] = getProductionsByTerminal(nonTerminals[i], &(prodSize[i]));
-	//	printf("%c -> --- %d\n", productionsNT[i]->leftsimbol,prodSize[i]);
-	//	printf("Afuera CANTIDAD %c: %d\n",nonTerminals[i],prodSize[i]);
 	}
-	printf("PROD SIZE: %d\n",prodSize[0]);
-	for ( i = 0 ; i < prodSize[0]; i++){
-	               printf("Terminal %c -- Produccion %c -> %s --- %d\n",nonTerminals[0],productionsNT[0][i].leftsimbol,productionsNT[0][i].rightsimbols,i);
-	 }
-
-	//Empieza la creeacion del archivo
+	//Se crea el archivo
 	if (file) {
 
-		printf("------------generating headers---------------\n");
 		fprintf(file, "#include <stdio.h>\n");
 		fprintf(file, "#include <stdlib.h>\n");
 		fprintf(file, "#include <string.h>\n");
@@ -153,8 +112,7 @@ void generateASDR() {
 		fprintf(file, "int procesar(production_struct p, char * w, int * t);\n");
 		fprintf(file, "void init();\n");
 
-		printf("------------generating main---------------\n");
-
+	
 		fprintf(file, "\nint main(int argc, char *argv[]) {\n");
 		fprintf(file, "\tif(argc!=2) {\n");
 		fprintf(file, "\t\tprintf(\"Mal uso del programa, se debería usar : %%s string \\n \", argv[0]);\n");
@@ -163,21 +121,19 @@ void generateASDR() {
 		fprintf(file, "\t\tprintf(\"Procesando la cadena %%s\\n\", argv[1]);\n\t}\n");
 		fprintf(file, "\tchar * w = argv[1];\n");
 		fprintf(file, "\tinit();\n");
-	//	fprintf(file, "\tchar);\n");
 		fprintf(file, "\tint t = 0;\n");
 	
 		fprintf(file, "\tif(!pn0(&t,w) && (t==strlen(w))){\n");
-		fprintf(file, "\t\tprintf(\"(The chain of used derivations is upside down)\\n\");\n");
-		fprintf(file, "\t\tprintf(\"The string has been accepted \\n\");\n");
+		fprintf(file, "\t\tprintf(\"La cadena ha sido ACEPTADA! \\n\");\n");
+		fprintf(file, "\t\tprintf(\"(---La cadena de derivacion esta invertida---)\\n\");\n");
 		fprintf(file, "\t} else {\n");
-		fprintf(file, "\t\tprintf(\"The string has NOT been accepted\\n\");\n");
+		fprintf(file, "\t\tprintf(\"La cadena ha sido RECHAZADA!\\n\");\n");
 	
 		fprintf(file, "\t}\n");
 		fprintf(file, "\treturn 0;\n");
 		fprintf(file, "}\n");
 		/*main*/
 		
-		printf("------------generating init---------------\n");
 
 		/*init*/
 
@@ -193,27 +149,23 @@ void generateASDR() {
 			int h;
 			
 			for (h = 0; h < prodSize[k]; h++) {
-				printf("CANTIDAD EN PROD: %d\n",prodSize[k]);
-				printf("PASO1\n");
+			
 			
 				production_struct p = ps[h];
-				printf("LEFT: %c\n",p.leftsimbol);
-				printf("PASO2\n");
+				
 				char * right = p.rightsimbols;
 				if( right[0] == '\\'){
 					fprintf(file, "\tprods%d[%d] = newProduction(\'%c\', \"\\\\\");\n", k, h, p.leftsimbol);
 				}else{
 				fprintf(file, "\tprods%d[%d] = newProduction(\'%c\', \"%s\");\n", k, h, p.leftsimbol, p.rightsimbols);
 				}
-				printf("PASO3\n");
+				
 			}
 		}
 			
 		fprintf(file, "}\n");
-		/*init*/
+		/*FIN init*/
 		
-		printf("------------generating procesar---------------\n");
-
 		/*procesar*/
 		fprintf(file, "\n/*returns TRUE if there is an error*/\n");
 		fprintf(file, "int procesar(production_struct p, char * w, int * t) {\n");
@@ -241,10 +193,6 @@ void generateASDR() {
 		fprintf(file, "\t\t\t}\n\t\t}\n\t}\n");
 		fprintf(file, "\treturn FALSE;\n}\n");
 
-
-		//TODO: debug
-		printf("------------procedures generator---------------\n");
-
 		/*procedures for each non terminal*/
 		/*corresponding to S*/
 		for (j = 0; j < gramatica->nonterminals->size; j++) {
@@ -269,13 +217,7 @@ void generateASDR() {
 			fprintf(file, "\tglobal += nonTerminalsinProd(prods%d[j]);\n",j);
 			fprintf(file, "\treturn error;\n}\n");
 		}
-
-	//	fprintf(file, "\treturn error;\n}\n");
-		//TODO: debug
-		
-		
-		printf("------------writing file---------------\n");
-
+		/*FIN Procesar*/
 		fclose(file);
 	}
 }
@@ -290,7 +232,7 @@ production_struct * getProductionsByTerminal( char nonTerminal , int * quant){
 		if (first == nonTerminal){
 			ans[k++] = p;
 		}
-		printf("first = %c ; nonT = %c ; k = %d\n", first,nonTerminal,k);
+		
 	}
 	(*quant) = k;
 	return ans;
@@ -306,232 +248,6 @@ int addProductions(char leftside, char rightside1, char rightside2){
 	gramatica->production_function->size = size + 1;
 	return 1;
 }
-int isLeft(){
-	int resp = -1;
-	int k;
-	
-	for (k = 0; k < gramatica->production_function->size; k++){
-			if ( gramatica->production_function->productions[k].leftsimbol != 0 ){
-				char left = gramatica->production_function->productions[k].leftsimbol;
-				char sright = gramatica->production_function->productions[k].rightsimbols[1];
-				char fright = gramatica->production_function->productions[k].rightsimbols[0];
-			
-				if ( (fright >= 'a' && fright <= 'z') && sright != 0 && resp == -1){
-					resp = 1;
-				}else if( (fright >= 'A' && fright <= 'Z') && sright != 0 && resp == -1){
-					resp = 0;
-				}else if( (fright >= 'A' && fright <= 'Z') && sright != 0 && resp == 1){
-						resp = -1;
-						return resp;
-				}else if( (fright >= 'a' && fright <= 'z') && sright != 0 && resp == 0){
-							resp = -1;
-							return resp;
-				}
-			}
-	}
-	
-	return resp;
-}
-
-void right_normalize(){
-	int j,k,i;
-	
-	for (k = 0; k < gramatica->production_function->size; k++){
-			if ( gramatica->production_function->productions[k].leftsimbol != 0 ){
-				char left = gramatica->production_function->productions[k].leftsimbol;
-				char sright = gramatica->production_function->productions[k].rightsimbols[1];
-				char fright = gramatica->production_function->productions[k].rightsimbols[0];
-			
-				if ( ( (fright >= 'a' && fright <= 'z') && sright == 0)){
-					gramatica->production_function->productions[k].rightsimbols[1] = gramatica->production_function->productions[k].rightsimbols[0];
-					gramatica->production_function->productions[k].rightsimbols[0] = 'M';
-				}
-			}
-	}
-	rotate_productions();
-//	addProductions('M','/',-1);
-	
-
-}
-
-void rotate_productions(){
-	int k;
-	
-	for (k = 0; k < gramatica->production_function->size; k++){
-			if ( gramatica->production_function->productions[k].leftsimbol != 0 ){
-				char left = gramatica->production_function->productions[k].leftsimbol;
-				char sright = gramatica->production_function->productions[k].rightsimbols[1];
-				char fright = gramatica->production_function->productions[k].rightsimbols[0];
-			
-				gramatica->production_function->productions[k].leftsimbol = fright;
-				gramatica->production_function->productions[k].rightsimbols[0] = sright;
-				gramatica->production_function->productions[k].rightsimbols[1] = left;
-			}
-	}
-	gramatica->initial = 'M';
-	addProductions('A','\\',0);
-}
-void left_normalize(){
-	int j,k,i;
-	
-	for (k = 0; k < gramatica->production_function->size; k++){
-			if ( gramatica->production_function->productions[k].leftsimbol != 0 ){
-				char left = gramatica->production_function->productions[k].leftsimbol;
-				char sright = gramatica->production_function->productions[k].rightsimbols[1];
-				char fright = gramatica->production_function->productions[k].rightsimbols[0];
-			
-				if ( ( (fright >= 'a' && fright <= 'z') && sright == 0)){
-					gramatica->production_function->productions[k].rightsimbols[1] = 'M';
-				}
-			}
-	}
-	addProductions('M','\\',0);
-	
-
-}
-
-void left_eliminateUnitaries(){
-	int i,j,k;
-	
-	for (k = 0; k < gramatica->production_function->size; k++){
-		if ( gramatica->production_function->productions[k].leftsimbol != 0 ){
-			char left = gramatica->production_function->productions[k].leftsimbol;
-			char sright = gramatica->production_function->productions[k].rightsimbols[1];
-			char fright = gramatica->production_function->productions[k].rightsimbols[0];
-		
-			if( fright >= 'A' && fright <= 'Z' && sright == 0){
-				for (j = 0; j < gramatica->production_function->size; j++){
-					if ( gramatica->production_function->productions[j].leftsimbol == fright ){
-						char first_right = gramatica->production_function->productions[j].rightsimbols[0];
-						char scnd_right = gramatica->production_function->productions[j].rightsimbols[1];
-						addProductions(left,first_right,scnd_right);
-					}
-				}
-					//Elimino la unitaria que está demas
-					gramatica->production_function->productions[k].leftsimbol = 0;
-			}
-		
-		}
-	}
-}
-void eliminateUnreach(){
-	int k,j,h;
-	char * old = malloc(sizeof(char)*15);
-	char * new = malloc(sizeof(char)*15);
-	char newSymbol;
-	//i=0;
-	j=0;
-	
-	//old[i++] = gramatica->initial;
-	new[j++] = gramatica->initial;
-	
-		for( h = 0; h < j; h++){
-			newSymbol = new[h];
-			for (k = 0; k < gramatica->production_function->size; k++){
-				if ( gramatica->production_function->productions[k].leftsimbol != 0 ){
-					char left = gramatica->production_function->productions[k].leftsimbol;
-					char sright = gramatica->production_function->productions[k].rightsimbols[1];
-					char fright = gramatica->production_function->productions[k].rightsimbols[0];
-
-					if ( left == newSymbol ){
-						if( sright >= 'A' && sright <= 'Z'){
-							if( !isContained(sright,new,j) ){
-								new[j] = sright;
-								j++;
-							}
-						}
-						if( fright >= 'A' && fright <= 'Z'){
-							if( !isContained(fright,new,j) ){
-								new[j] = fright; 
-								j++;
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		for (k = 0; k < gramatica->production_function->size; k++){
-			if ( gramatica->production_function->productions[k].leftsimbol != 0 ){
-				char left = gramatica->production_function->productions[k].leftsimbol;
-				if ( !isContained(left,new,j) ){
-					gramatica->production_function->productions[k].leftsimbol = 0;
-				}
-			}
-		}
-}
-
-void eliminateInproductive(){
-	int k,j,i;
-	
-	char * new = malloc(sizeof(char)*15);
-	j=0;
-	
-	//Cargo los primeros;
-		for (k = 0; k < gramatica->production_function->size; k++){
-			if ( gramatica->production_function->productions[k].leftsimbol != 0 ){
-				char left = gramatica->production_function->productions[k].leftsimbol;
-				char sright = gramatica->production_function->productions[k].rightsimbols[1];
-				char fright = gramatica->production_function->productions[k].rightsimbols[0];
-			
-				if ( ( (fright >= 'a' && fright <= 'z') && sright == 0) || fright == '\\'){
-					if ( !isContained(left,new,j) ){
-						new[j] = left;
-						j++;
-					}
-				}
-			}
-		}
-	//Recorro a partir de los primeros para llegar a los que son productivos.	
-	for( i = 0; i<j; i++){
-		char newSymbol = new[i];
-		for (k = 0; k < gramatica->production_function->size; k++){
-				if ( gramatica->production_function->productions[k].leftsimbol != 0 ){
-					char left = gramatica->production_function->productions[k].leftsimbol;
-					char sright = gramatica->production_function->productions[k].rightsimbols[1];
-					char fright = gramatica->production_function->productions[k].rightsimbols[0];
-				
-					if ( fright == newSymbol){
-						if ( !isContained(left,new,j)){
-							new[j] = left;
-							j++;
-						}
-					}
-					
-					if ( sright == newSymbol){
-						if ( !isContained(left,new,j)){
-							new[j] = left;
-							j++;
-						}
-					}
-					
-				}
-		}			
-	}
-	
-	//Elimino los que no estan contenidos en new o estan contenidos en inproductivos;
-	char * inproductivos = malloc ( sizeof(char) * 15);
-	int size = 0;
-	for ( k = 0; k < gramatica->terminals->size; k++){
-		if ( !isContained(gramatica->terminals->terminal[k], new, j) ){
-			inproductivos[size] = gramatica->terminals->terminal[k];
-			size++;
-		}
-	}
-	
-	for (k = 0; k < gramatica->production_function->size; k++){
-		if ( gramatica->production_function->productions[k].leftsimbol != 0){
-			char left = gramatica->production_function->productions[k].leftsimbol;
-			char sright = gramatica->production_function->productions[k].rightsimbols[1];
-			char fright = gramatica->production_function->productions[k].rightsimbols[0];
-			
-			if ( (isContained(fright,inproductivos,size) || isContained(sright,inproductivos, size) || isContained(left,inproductivos,size)) ){
-				gramatica->production_function->productions[k].leftsimbol = 0;
-			}
-		}
-	}	
-	
-}
 
 int isContained(char left, char * new, int size){
 	int i;
@@ -545,75 +261,6 @@ int isContained(char left, char * new, int size){
 	return 0;
 	
 }
-
-
-void makeDotFile(FILE * file){
-	int i,j,k;
-	char * aux = malloc(gramatica->production_function->size * sizeof(char));
-	int auxSize = 0;
-	//Crear el archivo.
-	file=fopen("file.dot","w");
-	fseek(file, 0, SEEK_SET);
-	//Insertar lineas.
-	fputs("digraph{\n",file);
-	//Inserta no terminales
-	i=0;
-	//Inserto Inicial
-	fputs("node[shape=circle] ",file);
-	fputc( gramatica->initial,file);
-	fputs(" [label=\"",file);
-	fputc((char)i+'0',file);
-	fputs("\"];\n",file);
-	i++;
-		
-	for (j = 0; j < gramatica->production_function->size; j++){
-		char leftValue = gramatica->production_function->productions[j].leftsimbol;
-		if ( leftValue != 0 &&  gramatica->production_function->productions[j].rightsimbols[0] != '\\' && leftValue != gramatica->initial && !isContained(leftValue,aux,auxSize)){
-		aux[auxSize] = leftValue;
-		auxSize++;
-		fputs("node[shape=circle] ",file);
-		fputc( leftValue,file);
-		fputs(" [label=\"",file);
-		fputc((char)i+'0',file);
-		fputs("\"];\n",file);
-		i++;
-		}	
-	}
-	//Pongo los finales 
-	for (j = 0; j < gramatica->production_function->size; j++){
-		if ( gramatica->production_function->productions[j].leftsimbol != 0 &&  gramatica->production_function->productions[j].rightsimbols[0] == '\\'){
-		
-		fputs("node[shape=doublecircle] ",file);
-		fputc( gramatica->production_function->productions[j].leftsimbol,file);
-		fputs(" [label=\"",file);
-		fputc((char)i+'0',file);
-		fputs("\"];\n",file);
-		i++;
-		}	
-	}
-	
-	
-	//Transiciones
-	for (k = 0; k < gramatica->production_function->size; k++){
-		if ( gramatica->production_function->productions[k].leftsimbol != 0 &&  gramatica->production_function->productions[k].rightsimbols[0] != '\\'){
-			char left = gramatica->production_function->productions[k].leftsimbol;
-			char right = gramatica->production_function->productions[k].rightsimbols[1];
-			char label = gramatica->production_function->productions[k].rightsimbols[0];
-			fputc(left,file);
-			fputs("->",file);
-			fputc(right,file);
-			fputs(" [label=\"",file);
-			fputc(label,file);
-			fputs("\"];\n",file);	
-			i++;	
-		}
-	}
-	fputs("}\n",file);
-	
-	return;
-	
-}
-
 
 int createGramatica(){
 	

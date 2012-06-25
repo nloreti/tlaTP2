@@ -1,4 +1,4 @@
-#include "./TPE/structs.h"
+#include "./includes/structs.h"
 
 int nonTerminalsinProd(production_struct p);
 int isTerminal(char c);
