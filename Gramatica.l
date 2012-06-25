@@ -98,7 +98,7 @@ void generateASDR() {
 		fprintf(file, "#include <stdlib.h>\n");
 		fprintf(file, "#include <string.h>\n");
 		//fprintf(file, "#include \"include/Production.h\"\n");
-		fprintf(file, "#include \"./additions.h\"\n");
+		fprintf(file, "#include \"./includes/additions.h\"\n");
 		fprintf(file, "#define TRUE 1\n");
 		fprintf(file, "#define FALSE 0\n");
 		fprintf(file, "int amountNT = 0;\n");
